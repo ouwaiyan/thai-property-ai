@@ -311,7 +311,7 @@ export function getRecommendationStats(days?: number) {
 
 // API Settings (Admin)
 export function getApiSettings() {
-  return api.get<Record<string, Array<{ id: string; provider: string; key_name: string; value: string | null; has_value: boolean; config_json: Record<string, unknown> | null; is_active: boolean }>>>('/admin/settings/').then((r) => r.data);
+  return api.get<Record<string, Array<{ id: string; provider: string; key_name: string; value: string | null; has_value: boolean; config_json: Record<string, unknown> | null; is_active: boolean; updated_at: string | null }>>>('/admin/settings/').then((r) => r.data);
 }
 export function upsertApiSetting(data: { provider: string; key_name: string; value?: string; config_json?: Record<string, unknown>; is_active?: boolean }) {
   return api.put('/admin/settings/', data).then((r) => r.data);
