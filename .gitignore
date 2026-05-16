@@ -1,0 +1,38 @@
+# Dependencies
+backend/venv/
+frontend/node_modules/
+
+# Environment & secrets
+.env
+.env.local
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Docker volumes
+postgres_data/
+redis_data/
+uploads_data/
+n8n_data/
+
+# Backups
+backups/*.sql.gz
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store

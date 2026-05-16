@@ -1,0 +1,135 @@
+version: "3.9"
+
+services:
+  # ── Nginx 反向代理 ──
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: thaiestate-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - frontend_build:/usr/share/nginx/html:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  # ── 前端 Next.js ──
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: thaiestate-frontend
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-/api/v1}
+    restart: unless-stopped
+
+  # ── 后端 FastAPI ──
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: thaiestate-backend
+    expose:
+      - "8000"
+    environment:
+      - APP_NAME=ThaiEstate API
+      - DEBUG=false
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-thai_estate_db}
+      - DATABASE_URL_SYNC=postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-thai_estate_db}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - CORS_ORIGINS=${CORS_ORIGINS:-["https://your-domain.com"]}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - LINE_CHANNEL_SECRET=${LINE_CHANNEL_SECRET}
+      - LINE_CHANNEL_ACCESS_TOKEN=${LINE_CHANNEL_ACCESS_TOKEN}
+      - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL}
+      - UPLOAD_DIR=uploads/properties
+      - MAX_UPLOAD_SIZE_MB=10
+    volumes:
+      - uploads_data:/app/uploads
+      - ./backend/.env:/app/.env:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  # ── 后台任务 Worker ──
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: thaiestate-worker
+    command: python -m app.worker
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-thai_estate_db}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── PostgreSQL + PostGIS ──
+  postgres:
+    image: postgis/postgis:16-3.5
+    container_name: thaiestate-postgres
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-thai_estate_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-thai_estate_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Redis 缓存 ──
+  redis:
+    image: redis:7-alpine
+    container_name: thaiestate-redis
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # ── n8n 自动化 (可选) ──
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: thaiestate-n8n
+    expose:
+      - "5678"
+    environment:
+      - N8N_HOST=${N8N_HOST:-n8n.your-domain.com}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+    profiles:
+      - full
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads_data:
+  n8n_data:
+  frontend_build:

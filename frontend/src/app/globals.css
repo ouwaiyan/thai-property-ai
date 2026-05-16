@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+.import-error-row {
+  background-color: #fff2f0 !important;
+}
+.import-error-row:hover > td {
+  background-color: #ffe7e5 !important;
+}
+
+.leaflet-container {
+  height: 100%;
+  z-index: 1;
+}
+
+.nearby-search-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.map-picker-container {
+  height: 300px;
+  margin-bottom: 16px;
+}
+
+.property-map-container {
+  height: 400px;
+  margin-top: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+}
