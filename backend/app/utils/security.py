@@ -1,6 +1,7 @@
 import re
 from datetime import datetime, timedelta
 
+from fastapi import HTTPException, status
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
@@ -60,5 +61,8 @@ def create_refresh_token(user_id: str) -> str:
 def decode_token(token: str) -> dict:
     try:
         return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-    except JWTError:
-        raise ValueError("Invalid token")
+    except JWTError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"auth.invalid_token||error={str(e)}",
+        )
