@@ -23,8 +23,13 @@ import geoalchemy2  # noqa: F401 - required for spatial column introspection
 
 from app.database import Base
 from app.models import *  # noqa: F401, F403 — import all models for autogenerate
+from app.config import settings
 
 target_metadata = Base.metadata
+
+# Override sqlalchemy.url from alembic.ini with the app settings
+# so Docker deployments use the correct host (e.g. "postgres" vs "localhost")
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL_SYNC)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
