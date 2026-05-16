@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { Card, Col, Row, Statistic } from 'antd';
 import { HomeOutlined, UserOutlined, DollarOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import dynamic from 'next/dynamic';
 import { getProperties } from '@/lib/api';
-import PropertyMap from '@/components/PropertyMap';
 import type { PropertyMarker } from '@/components/PropertyMap';
+const PropertyMap = dynamic(() => import('@/components/PropertyMap'), { ssr: false });
 import { useI18n } from '@/i18n/i18n';
 import type { PropertyListOut } from '@/types/property';
 

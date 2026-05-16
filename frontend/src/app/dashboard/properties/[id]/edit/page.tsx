@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, Form, Input, InputNumber, Select, Switch, Button, App, Space, Spin, Upload } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { getProperty, updateProperty, uploadPropertyImages, deletePropertyImage } from '@/lib/api';
-import MapPicker from '@/components/MapPicker';
+import dynamic from 'next/dynamic';
+const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
 import { useI18n } from '@/i18n/i18n';
 import type { PropertyOut } from '@/types/property';
 

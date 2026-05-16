@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, Form, Input, InputNumber, Select, Switch, Button, App, Space } from 'antd';
 import { createProperty } from '@/lib/api';
-import MapPicker from '@/components/MapPicker';
+import dynamic from 'next/dynamic';
+const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
 import { useI18n } from '@/i18n/i18n';
 import type { PropertyCreate } from '@/types/property';
 

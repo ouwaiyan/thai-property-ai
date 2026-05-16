@@ -12,8 +12,9 @@ import {
   getLeads, searchRecommendations, aiGenerateMessage, markRecommendationSent, getLeadRecommendations,
 } from '@/lib/api';
 import { useI18n } from '@/i18n/i18n';
-import PropertyMap from '@/components/PropertyMap';
+import dynamic from 'next/dynamic';
 import type { PropertyMarker } from '@/components/PropertyMap';
+const PropertyMap = dynamic(() => import('@/components/PropertyMap'), { ssr: false });
 import type { LeadOut } from '@/types/lead';
 import type { RecommendationSearchResult, RecommendationOut } from '@/types/ai';
 
