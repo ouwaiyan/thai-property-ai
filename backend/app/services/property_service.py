@@ -143,7 +143,9 @@ async def get_properties(
 
 
 async def get_property(db: AsyncSession, property_id: UUID, current_user: User) -> Property:
-    result = await db.execute(select(Property).where(Property.id == property_id))
+    result = await db.execute(
+        select(Property).options(selectinload(Property.images)).where(Property.id == property_id)
+    )
     prop = result.scalar_one_or_none()
     if not prop:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="property.not_found")
