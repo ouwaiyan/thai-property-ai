@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import {
-  Card, Select, Button, Space, Tag, Descriptions, App, Spin, Modal, Tabs, message,
+  Card, Select, Button, Space, Tag, Descriptions, App, Spin, Tabs,
 } from 'antd';
 import {
   SearchOutlined, RobotOutlined, CopyOutlined, SendOutlined,
